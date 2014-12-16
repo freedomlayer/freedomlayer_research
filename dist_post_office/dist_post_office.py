@@ -331,8 +331,8 @@ def go():
     print("||| ident_bits =",ident_bits)
 
     print("Generating graph...")
-    g = gen_grid_graph(i)
-    # g = gen_gnp_graph(i)
+    # g = gen_grid_graph(i)
+    g = gen_gnp_graph(i)
 
     print("Generating Network...")
     dp = DPostOffice(graph=g,\
