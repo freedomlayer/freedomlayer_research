@@ -11,8 +11,8 @@ extern crate ordered_float;
 use rand::{Rng, StdRng};
 // use std::hash::Hash;
 
-use net_coords::landmarks::{gen_areas};
-// use net_coords::landmarks::{gen_areas_neighbors};
+// use net_coords::landmarks::{gen_areas};
+use net_coords::landmarks::{gen_areas_neighbors};
 use net_coords::landmarks::find_path_landmarks_areas;
 use net_coords::landmarks::find_path_landmarks_areas_set;
 use net_coords::network::{Network};
@@ -108,11 +108,17 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
                 Some(coords) => coords,
                 None => unreachable!(),
             };
-            let amount_close = g.pow(2);
-            let areas = gen_areas(amount_close, &net);
-            // let areas = gen_areas_neighbors(&net);
+            // let amount_close = g.pow(2);
+            // let areas = gen_areas(amount_close, &net);
+            let areas = gen_areas_neighbors(3, &net);
 
-            let ball_size = g.pow(2);
+            /*
+            println!();
+            println!("areas[0].len() == {}", areas[0].len());
+            println!("areas[1].len() == {}", areas[1].len());
+            */
+
+            let ball_size = g.pow(3);
             // let ball_size = (net.igraph.node_count() as f64).sqrt() as usize;
 
             let mut find_path = |src_i: usize, dst_i: usize|
@@ -138,9 +144,9 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
                 Some(coords) => coords,
                 None => unreachable!(),
             };
-            let amount_close = g.pow(2);
-            let areas = gen_areas(amount_close, &net);
-            // let areas = gen_areas_neighbors(&net);
+            // let amount_close = g.pow(2);
+            // let areas = gen_areas(amount_close, &net);
+            let areas = gen_areas_neighbors(2, &net);
 
             let mut find_path = |src_i: usize, dst_i: usize|
                 find_path_landmarks_areas(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng);
