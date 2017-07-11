@@ -292,7 +292,7 @@ pub fn find_path_landmarks_areas<R: Rng, Node: Hash + Eq + Clone>(src_node: usiz
 /// Try to find a path in the network between src_node and any node in the given dst_set.
 /// Returns None if path was not found, or Some(path_length)
 pub fn find_path_landmarks_areas_set<R: Rng, Node: Hash + Eq + Clone>(src_node: usize, 
-        dst_node: usize, net: &Network<Node>, coords: &Vec<Vec<u64>>, landmarks: &Vec<usize>, 
+        dst_node: usize, ball_size: usize, net: &Network<Node>, coords: &Vec<Vec<u64>>, landmarks: &Vec<usize>, 
         areas: &Vec<Vec<KnownNode>>, mut rng: &mut R) -> Option<u64> {
 
     // Node distance function:
@@ -305,7 +305,7 @@ pub fn find_path_landmarks_areas_set<R: Rng, Node: Hash + Eq + Clone>(src_node: 
     // This makes it easier to find that node (In case we find any of the nodes from the ball).
     // We also keep the distance in the map, to be able to calculate the total_distance.
     let mut dst_map: HashMap<usize, u64> = HashMap::new();
-    for &KnownNode {index, dist} in &areas[dst_node] {
+    for (index, dist, _) in  net.closest_nodes_structure(dst_node).take(ball_size) {
         dst_map.insert(index, dist);
     }
     // Make sure that dst_node is inside dst_map:
