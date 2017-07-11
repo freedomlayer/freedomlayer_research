@@ -11,7 +11,9 @@ extern crate ordered_float;
 use rand::{Rng, StdRng};
 // use std::hash::Hash;
 
-use net_coords::landmarks::{gen_areas, find_path_landmarks_areas};
+use net_coords::landmarks::{gen_areas/*,  find_path_landmarks*/};
+use net_coords::landmarks::find_path_landmarks_areas;
+use net_coords::landmarks::find_path_landmarks_areas_set;
 use net_coords::network::{Network};
 use net_coords::landmarks::coords::{build_coords, choose_landmarks};
 use net_coords::random_util::choose_k_nums;
@@ -91,12 +93,12 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
         node_pair
     };
     match routing_type {
-        0 => { /* landmarks routing nei^2 */
+        0 => { 
             // Generate helper structures for landmarks routing:
 
             // Calculate landmarks and coordinates for landmarks routing:
             // Amount of landmarks can not be above half of the node count:
-            let mut num_landmarks: usize = (((g*g) as u32)) as usize;
+            let mut num_landmarks: usize = g;
             if num_landmarks as f64 > (net.igraph.node_count() as f64) / 2.0 {
                 num_landmarks = net.igraph.node_count() / 2;
             }
@@ -105,23 +107,23 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
                 Some(coords) => coords,
                 None => unreachable!(),
             };
-            let amount_close = g.pow(2);
+            let amount_close = 8*g.pow(2);
             let areas = gen_areas(amount_close, &net);
 
-            let mut find_path = |src_i: usize, dst_i: usize| {
-                find_path_landmarks_areas(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng)
-
-            };
+            let mut find_path = |src_i: usize, dst_i: usize|
+                find_path_landmarks_areas_set(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng);
+                // find_path_landmarks(src_i, dst_i, amount_close, net, &coords, &landmarks, routing_rng);
 
             get_routing_stats(&mut rand_node_pair, &mut find_path,
                                   &mut node_pair_rng, landmarks_num_iters)
         },
-        1 => { /* landmarks routing nei^3 */
+        1 => { 
             // Generate helper structures for landmarks routing:
 
             // Calculate landmarks and coordinates for landmarks routing:
             // Amount of landmarks can not be above half of the node count:
-            let mut num_landmarks: usize = (((g*g) as u32)) as usize;
+            let mut num_landmarks: usize = g;
+            // let mut num_landmarks: usize = (((g*g) as u32)) as usize;
             if num_landmarks as f64 > (net.igraph.node_count() as f64) / 2.0 {
                 num_landmarks = net.igraph.node_count() / 2;
             }
@@ -130,13 +132,12 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
                 Some(coords) => coords,
                 None => unreachable!(),
             };
-            let amount_close = g.pow(3);
+            let amount_close = 8*g.pow(2);
             let areas = gen_areas(amount_close, &net);
 
-            let mut find_path = |src_i: usize, dst_i: usize| {
-                find_path_landmarks_areas(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng)
-
-            };
+            let mut find_path = |src_i: usize, dst_i: usize|
+                find_path_landmarks_areas(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng);
+                // find_path_landmarks(src_i, dst_i, amount_close, net, &coords, &landmarks, routing_rng);
 
             get_routing_stats(&mut rand_node_pair, &mut find_path,
                               &mut node_pair_rng, landmarks_num_iters)
@@ -163,7 +164,7 @@ fn main() {
 
     println!("Weighted landmarks routing");
     println!();
-    println!("      Network        |    landmarks nei^2     |     landmarks nei^3     ");
+    println!("      Network        |        Routing1        |        Routing2         ");
     println!("---------------------+------------------------+------------------------+");
 
     for g in 6 .. 21 { // Iterate over size of network.

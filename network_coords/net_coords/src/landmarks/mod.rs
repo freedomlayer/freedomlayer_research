@@ -9,7 +9,7 @@ use self::rand::distributions::{Weighted, WeightedChoice,
     IndependentSample, Range};
 
 use std::hash::Hash;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 use network::{Network};
 use landmarks::coord_mappers::{approx_max_dist, max_dist};
@@ -25,7 +25,9 @@ pub fn find_path_landmarks<R: Rng, Node: Hash + Eq + Clone>(src_node: usize, dst
 
     // Node distance function:
     let node_dist = |x,y| approx_max_dist(x,y,&coords, &landmarks);
-    // let calc_weight = |i: usize| ((-(node_dist(i, dst_node) as f64)).exp() * 100.0) as u32;
+    // let calc_weight = |i: usize| {
+    //     1 + (((-(node_dist(i, dst_node) as f64)/(0x1000 as f64)).exp())*10000.0) as u32
+    // };
     let calc_weight = |_: usize| 1 as u32;
 
     let mut total_distance: u64 = 0;
@@ -285,6 +287,52 @@ pub fn find_path_landmarks_areas<R: Rng, Node: Hash + Eq + Clone>(src_node: usiz
 
     }
     Some(total_distance)
+}
+
+/// Try to find a path in the network between src_node and any node in the given dst_set.
+/// Returns None if path was not found, or Some(path_length)
+pub fn find_path_landmarks_areas_set<R: Rng, Node: Hash + Eq + Clone>(src_node: usize, 
+        dst_node: usize, net: &Network<Node>, coords: &Vec<Vec<u64>>, landmarks: &Vec<usize>, 
+        areas: &Vec<Vec<KnownNode>>, mut rng: &mut R) -> Option<u64> {
+
+    // Node distance function:
+    let node_dist = |x,y| approx_max_dist(x,y,&coords, &landmarks);
+
+    let mut total_distance: u64 = 0;
+    let mut cur_node = src_node;
+
+    // Make a map that contains a ball around the destination node.
+    // This makes it easier to find that node (In case we find any of the nodes from the ball).
+    // We also keep the distance in the map, to be able to calculate the total_distance.
+    let mut dst_map: HashMap<usize, u64> = HashMap::new();
+    for &KnownNode {index, dist} in &areas[dst_node] {
+        dst_map.insert(index, dist);
+    }
+    // Make sure that dst_node is inside dst_map:
+    dst_map.insert(dst_node, 0);
+    
+    while !dst_map.contains_key(&cur_node) {
+        let mut new_known: &KnownNode = &areas[cur_node]
+                .iter()
+                .min_by_key(|&&KnownNode {index: i, .. }| node_dist(dst_node, i)).unwrap();
+
+        if node_dist(new_known.index, dst_node) >= node_dist(cur_node, dst_node) {
+
+            // Randomize from all known nodes:
+            let known_range : Range<usize> = Range::new(0, areas[cur_node].len());
+            new_known = &areas[cur_node][known_range.ind_sample(rng)];
+        }
+
+        total_distance += new_known.dist;
+        // The path is already too long. We abort.
+        if total_distance as usize > net.igraph.node_count() {
+            return None
+        }
+        cur_node = new_known.index;
+        // cur_node = gateway_index;
+
+    }
+    Some(total_distance + dst_map.get(&cur_node).unwrap())
 }
 
 /// Try to find a path in the network between src_node and dst_node.
