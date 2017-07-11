@@ -146,7 +146,7 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
             };
             // let amount_close = g.pow(2);
             // let areas = gen_areas(amount_close, &net);
-            let areas = gen_areas_neighbors(2, &net);
+            let areas = gen_areas_neighbors(3, &net);
 
             let mut find_path = |src_i: usize, dst_i: usize|
                 find_path_landmarks_areas(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng);
