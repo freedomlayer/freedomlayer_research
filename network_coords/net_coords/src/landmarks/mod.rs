@@ -212,6 +212,21 @@ pub fn gen_areas<Node: Hash + Eq + Clone>(amount_close: usize,
     areas
 }
 
+pub fn gen_areas_neighbors<Node: Hash + Eq + Clone>(net: &Network<Node>) 
+            -> Vec<Vec<KnownNode>> {
+
+    let mut areas: Vec<Vec<KnownNode>> = Vec::new();
+
+    for node_index in 0 .. net.igraph.node_count() {
+        let mut area_nodes: Vec<KnownNode> = Vec::new();
+        for nei_index in net.igraph.neighbors(node_index) {
+                area_nodes.push(KnownNode {index: nei_index, dist: 1u64});
+        }
+        areas.push(area_nodes);
+    }
+    areas
+}
+
 pub fn gen_areas_rw<R: Rng, Node: Hash + Eq + Clone>(amount_close: usize, 
           rw_iters: usize, net: &Network<Node>, 
           mut rng: &mut R) -> Vec<Vec<KnownNode>> {
@@ -274,6 +289,10 @@ pub fn find_path_landmarks_areas<R: Rng, Node: Hash + Eq + Clone>(src_node: usiz
             // Randomize from all known nodes:
             let known_range : Range<usize> = Range::new(0, areas[cur_node].len());
             new_known = &areas[cur_node][known_range.ind_sample(rng)];
+            // Randomize another iteration:
+            // total_distance += new_known.dist;
+            // let known_range : Range<usize> = Range::new(0, areas[new_known.index].len());
+            // new_known = &areas[new_known.index][known_range.ind_sample(rng)];
         }
 
         total_distance += new_known.dist;
