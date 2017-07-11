@@ -212,7 +212,7 @@ pub fn gen_areas<Node: Hash + Eq + Clone>(amount_close: usize,
     areas
 }
 
-pub fn gen_areas_neighbors<Node: Hash + Eq + Clone>(depth:usize, net: &Network<Node>) 
+pub fn gen_areas_neighbors<Node: Hash + Eq + Clone>(radius:usize, net: &Network<Node>) 
             -> Vec<Vec<KnownNode>> {
 
     let mut areas: Vec<Vec<KnownNode>> = Vec::new();
@@ -223,7 +223,7 @@ pub fn gen_areas_neighbors<Node: Hash + Eq + Clone>(depth:usize, net: &Network<N
         cur_level.insert(node_index);
         seen.insert(node_index, KnownNode {index: node_index, dist: 0_u64});
 
-        for j in 1 .. depth {
+        for j in 1 .. radius {
             let mut new_level: HashSet<usize> = HashSet::new();
             for index in cur_level.into_iter() {
                 for nei_index in net.igraph.neighbors(index) {
