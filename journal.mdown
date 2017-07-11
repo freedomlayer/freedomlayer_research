@@ -22,3 +22,18 @@ TODO for next time:
     - The first node tries to route to that coordinate.
     - The other node tries to route to that coordinate too.
     - Check how often the two nodes arrive at the exact same node.
+
+## 11.07.2017
+
+- Why are the results of landmarks routing using areas method gives slightly
+  worse results when compared with the old method (Without precomputed areas?)
+    -- This happens because different amount_close used for areas. When
+        increased, the results are good again.
+
+- Find out if we can reduce the amount of landmarks and still have reasonable
+  routing results.
+
+- Program the design of the new thin Chord DHT and check global optimality.
+    - If not global optimal, find out what should be done to make it globally
+      optimal. 
+
