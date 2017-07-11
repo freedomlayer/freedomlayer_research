@@ -212,16 +212,35 @@ pub fn gen_areas<Node: Hash + Eq + Clone>(amount_close: usize,
     areas
 }
 
-pub fn gen_areas_neighbors<Node: Hash + Eq + Clone>(net: &Network<Node>) 
+pub fn gen_areas_neighbors<Node: Hash + Eq + Clone>(depth:usize, net: &Network<Node>) 
             -> Vec<Vec<KnownNode>> {
 
     let mut areas: Vec<Vec<KnownNode>> = Vec::new();
 
     for node_index in 0 .. net.igraph.node_count() {
-        let mut area_nodes: Vec<KnownNode> = Vec::new();
-        for nei_index in net.igraph.neighbors(node_index) {
-                area_nodes.push(KnownNode {index: nei_index, dist: 1u64});
+        let mut seen: HashMap<usize, KnownNode> = HashMap::new();
+        let mut cur_level: HashSet<usize> = HashSet::new();
+        cur_level.insert(node_index);
+        seen.insert(node_index, KnownNode {index: node_index, dist: 0_u64});
+
+        for j in 1 .. depth {
+            let mut new_level: HashSet<usize> = HashSet::new();
+            for index in cur_level.into_iter() {
+                for nei_index in net.igraph.neighbors(index) {
+                    if !seen.contains_key(&nei_index) {
+                        new_level.insert(nei_index);
+                        seen.insert(nei_index, KnownNode {
+                            index: nei_index, 
+                            dist: j as u64
+                        });
+                    }
+                }
+            }
+            cur_level = new_level;
         }
+        let area_nodes: Vec<KnownNode> = seen.into_iter()
+            .map(|(_, known_node)| known_node)
+            .collect::<Vec<KnownNode>>();
         areas.push(area_nodes);
     }
     areas
