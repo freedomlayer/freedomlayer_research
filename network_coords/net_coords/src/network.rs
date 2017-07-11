@@ -356,13 +356,9 @@ mod tests {
 
         let closest: Vec<_> = net.closest_nodes(1).take(5).collect();
         assert!(closest.len() == 4);
-        println!("0");
         assert!(closest[0] == (0,1,0));
-        println!("1");
         assert!(closest[1] == (2,2,2));
-        println!("2");
         assert!(closest[2] == (4,5,2));
-        println!("3");
         assert!(closest[3] == (6,7,2));
     }
 
