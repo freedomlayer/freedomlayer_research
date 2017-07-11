@@ -107,11 +107,13 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
                 Some(coords) => coords,
                 None => unreachable!(),
             };
-            let amount_close = 8*g.pow(2);
+            let amount_close = g.pow(2);
             let areas = gen_areas(amount_close, &net);
 
             let mut find_path = |src_i: usize, dst_i: usize|
-                find_path_landmarks_areas_set(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng);
+                find_path_landmarks_areas_set(src_i, dst_i, 
+                                              (net.igraph.node_count() as f64).sqrt() as usize,
+                                              net, &coords, &landmarks, &areas, routing_rng);
                 // find_path_landmarks(src_i, dst_i, amount_close, net, &coords, &landmarks, routing_rng);
 
             get_routing_stats(&mut rand_node_pair, &mut find_path,
@@ -132,7 +134,7 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
                 Some(coords) => coords,
                 None => unreachable!(),
             };
-            let amount_close = 8*g.pow(2);
+            let amount_close = g.pow(2);
             let areas = gen_areas(amount_close, &net);
 
             let mut find_path = |src_i: usize, dst_i: usize|
