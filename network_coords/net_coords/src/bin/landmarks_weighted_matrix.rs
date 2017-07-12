@@ -99,7 +99,7 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
 
             // Calculate landmarks and coordinates for landmarks routing:
             // Amount of landmarks can not be above half of the node count:
-            let mut num_landmarks: usize = g;
+            let mut num_landmarks: usize = 2*g;
             if num_landmarks as f64 > (net.igraph.node_count() as f64) / 2.0 {
                 num_landmarks = net.igraph.node_count() / 2;
             }
@@ -110,7 +110,7 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
             };
             // let amount_close = g.pow(2);
             // let areas = gen_areas(amount_close, &net);
-            let areas = gen_areas_neighbors(3, &net);
+            let areas = gen_areas_neighbors(4, &net);
 
             /*
             println!();
@@ -134,7 +134,7 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
 
             // Calculate landmarks and coordinates for landmarks routing:
             // Amount of landmarks can not be above half of the node count:
-            let mut num_landmarks: usize = g;
+            let mut num_landmarks: usize = 2*g;
             // let mut num_landmarks: usize = (((g*g) as u32)) as usize;
             if num_landmarks as f64 > (net.igraph.node_count() as f64) / 2.0 {
                 num_landmarks = net.igraph.node_count() / 2;
@@ -146,7 +146,7 @@ fn run_routing_by_type<R: Rng>(routing_type: usize,
             };
             // let amount_close = g.pow(2);
             // let areas = gen_areas(amount_close, &net);
-            let areas = gen_areas_neighbors(3, &net);
+            let areas = gen_areas_neighbors(4, &net);
 
             let mut find_path = |src_i: usize, dst_i: usize|
                 find_path_landmarks_areas(src_i, dst_i, net, &coords, &landmarks, &areas, routing_rng);
