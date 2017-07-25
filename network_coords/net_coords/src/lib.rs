@@ -6,3 +6,4 @@ pub mod smallest_k;
 pub mod statistic;
 pub mod index_pair;
 pub mod chord;
+pub mod towers;
