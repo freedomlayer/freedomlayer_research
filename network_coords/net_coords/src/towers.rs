@@ -135,3 +135,16 @@ fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>,
 
     towers_info
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calc_towers_info() {
+        // TODO: Add a basic test for running calc_towers_info here.
+    }
+
+
+}
