@@ -27,7 +27,7 @@ TODO for next time:
 
 - Why are the results of landmarks routing using areas method gives slightly
   worse results when compared with the old method (Without precomputed areas?)
-    -- This happens because different amount_close used for areas. When
+    - This happens because different amount_close used for areas. When
         increased, the results are good again.
 
 - Find out if we can reduce the amount of landmarks and still have reasonable
@@ -36,4 +36,100 @@ TODO for next time:
 - Program the design of the new thin Chord DHT and check global optimality.
     - If not global optimal, find out what should be done to make it globally
       optimal. 
+
+
+## 12.07.2017
+
+- Routing using towers.
+    - Checking how much bandwidth required for towers. (sqrt(n))
+    - Correct incentives for towers
+        - How to make sure nodes don't volunteer to be a tower and then do
+          nothing. (A solution like property tax)
+        - How to choose the price for being a tower?
+        - Who manages the incentives? The chosen supernode? All supernodes
+          together?
+    - Does the towers routing idea scale? What if our network has 2^60 nodes?
+
+- Incentivized byzantine agreement for supernode.
+    - Basic turn based block chain?
+
+- A more efficient DHT.
+    - Check if the thin connected DHT is globally optimal.
+        - Write code.
+        - If works, try to prove.
+
+---
+
+How much bandwidth is required for towers?
+
+For maintanence: Every tower has to know a short path (Through towers) to
+arrive to every other tower. This means every tower should maintain sqrt(n)
+distance values, each representing a distance from each of the towers. In
+order to arrive to a tower, one has to go over a path that decreases the
+distance to a tower at every step.
+
+Whenever a path to a tower becomes shorter, a tower will update all of his
+immediate neighboring towers about the change. The change will include a
+chain of signatures for the path (The first signature is the remote tower's
+signature, signing the current time).
+
+When a new tower is assigned, it should calculate an updated vector of
+distances. The new tower should receive sqrt(n) distances from each of his
+neighboring towers. Each distance received should also include a proof, which
+is a list of signatures, starting from the remote tower signing over the
+current time. O(C * sqrt(n) * diam(Towers)) communication. 
+
+---
+
+Can we make chained signatures shorter somehow?
+How can we prove that a path from a node to another node is of certain length?
+
+```
+a0 --> a1 --> a2 --> a3 --> a4 --> a5
+```
+
+The chain that a5 receives all the way from a0:
+
+```
+cur_time
+a1, sign_[a0](prev, a1)
+a2, sign_[a1](prev, a2)
+a3, sign_[a2](prev, a3)
+a4, sign_[a3](prev, a4)
+a5, sign_[a4](prev, a5)
+```
+
+(By prev we mean the previous line).
+
+a5 then knows that there is a path of length at most 5 from a0 to a5.
+It is possible that a3 does not exist, and a2 actually made him up.
+Intermediate nodes may increase the length of the path, but they can not make
+it shorter. (Unless there is control, for example, of the nodes a1, a2 and a3.
+Though in this case we can actually consider those three nodes to be one node).
+
+Is it possible to make the chain shorter, somehow?
+
+
+## 25.07.2017
+
+Routing using towers.
+
+I need to check if the towers with their local knowledge of other towers create
+a strongly connected directed graph.
+
+Every tower knows how to get to the closest towers of certain colors.
+
+To check if the network of towers is strongly connected, we should perform the
+following algorithm:
+
+1. Start with some tower `T` and perform dfs. Make sure that we can reach all
+   nodes.
+
+2. Start with the same node `T` and perform dfs over inverted arrows. Make
+   sure that we can reach all nodes.
+
+If we can reach all nodes in (1) and (2), it means that the resulting directed
+graph is strongly connected.
+
+
 
