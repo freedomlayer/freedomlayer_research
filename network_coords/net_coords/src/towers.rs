@@ -63,7 +63,7 @@ fn init_towers_info(num_nodes: usize, num_colors: usize, num_towers: usize) ->
 /// Every node will learn about the closest local towers
 /// of every color.
 fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>, 
-    chosen_towers: Vec<Vec<usize>>) -> Vec<Vec<Vec<Option<LocalTowerInfo>>>> {
+    chosen_towers: &Vec<Vec<usize>>) -> Vec<Vec<Vec<Option<LocalTowerInfo>>>> {
 
     let mut towers_info = init_towers_info(net.igraph.node_count(), 
                                            chosen_towers.len(),
@@ -139,12 +139,21 @@ fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>,
 
 #[cfg(test)]
 mod tests {
+    extern crate rand;
     use super::*;
+    use network_gen::gen_network;
+    use self::rand::{StdRng};
 
     #[test]
     fn test_calc_towers_info() {
-        // TODO: Add a basic test for running calc_towers_info here.
-    }
+        // Generate a random network:
+        let seed: &[_] = &[1,2,3,4,5];
+        let mut rng: StdRng = rand::SeedableRng::from_seed(seed);
+        let net = gen_network(0, 7, 15, 1, 2, &mut rng);
 
+        let chosen_towers = choose_towers(&net, 16, 4, &mut rng);
+        let _ = calc_towers_info(&net, &chosen_towers);
+
+    }
 
 }
