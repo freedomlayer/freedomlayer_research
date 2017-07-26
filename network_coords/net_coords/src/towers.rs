@@ -1,6 +1,10 @@
 extern crate rand;
+extern crate petgraph;
 
 use self::rand::{Rng};
+use self::petgraph::graphmap;
+use self::petgraph::algo::kosaraju_scc;
+
 use network::{Network};
 use std::hash::Hash;
 
@@ -11,7 +15,7 @@ use std::collections::VecDeque;
 /// Information of some node in the network about 
 /// a local tower (Closest of a certain color).
 #[derive(Clone)]
-struct LocalTowerInfo {
+pub struct LocalTowerInfo {
     gateway: usize,
     distance: u64,
     tower_node: usize,
@@ -19,7 +23,7 @@ struct LocalTowerInfo {
 
 /// Choose nodes to be towers. We pick num_towers towers of every color. There are num_colors
 /// different tower colors.
-fn choose_towers<Node: Hash + Eq + Clone, R: Rng>(net: &Network<Node>, 
+pub fn choose_towers<Node: Hash + Eq + Clone, R: Rng>(net: &Network<Node>, 
                   num_towers: usize, num_colors: usize, rng: &mut R) -> Vec<Vec<usize>> {
 
     let mut chosen_towers: Vec<Vec<usize>> = Vec::new();
@@ -44,16 +48,13 @@ struct UpdateOper {
     local_tower_info: LocalTowerInfo,
 }
 
-fn init_towers_info(num_nodes: usize, num_colors: usize, num_towers: usize) ->
-    Vec<Vec<Vec<Option<LocalTowerInfo>>>> {
-    let mut towers_info: Vec<Vec<Vec<Option<LocalTowerInfo>>>> = Vec::new();
+fn init_towers_info(num_nodes: usize, num_colors: usize) ->
+    Vec<Vec<Option<LocalTowerInfo>>> {
+    let mut towers_info: Vec<Vec<Option<LocalTowerInfo>>> = Vec::new();
     for i in 0 .. num_nodes {
         towers_info.push(Vec::new());
-        for color in 0 .. num_colors {
-            towers_info[i].push(Vec::new());
-            for tower_index in 0 .. num_towers {
-                towers_info[i][color].push(None);
-            }
+        for _ in 0 .. num_colors {
+            towers_info[i].push(None);
         }
     }
     towers_info
@@ -62,12 +63,11 @@ fn init_towers_info(num_nodes: usize, num_colors: usize, num_towers: usize) ->
 /// Converge information about local towers. 
 /// Every node will learn about the closest local towers
 /// of every color.
-fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>, 
-    chosen_towers: &Vec<Vec<usize>>) -> Vec<Vec<Vec<Option<LocalTowerInfo>>>> {
+pub fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>, 
+    chosen_towers: &Vec<Vec<usize>>) -> Vec<Vec<Option<LocalTowerInfo>>> {
 
     let mut towers_info = init_towers_info(net.igraph.node_count(), 
-                                           chosen_towers.len(),
-                                           chosen_towers[0].len());
+                                           chosen_towers.len());
 
     let mut pending_opers: VecDeque<UpdateOper> = VecDeque::new();
 
@@ -92,13 +92,13 @@ fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>,
     // Start handling pending operations:
     while let Some(oper) = pending_opers.pop_front() {
         let ltower_info_opt: &mut Option<LocalTowerInfo> = 
-            &mut towers_info[oper.node][oper.tower_color][oper.tower_index];
+            &mut towers_info[oper.node][oper.tower_color];
 
         let should_update = match *ltower_info_opt {
             None => true, 
             Some(ref ltower_info) => {
-                // Check if the new offered tower info (oper.local_tower_info) is better than the current
-                // one (ltower_info):
+                // Check if the new offered tower info (oper.local_tower_info) 
+                // is better than the current one (ltower_info):
                 if (ltower_info.distance, 
                     ltower_info.gateway, 
                     ltower_info.tower_node) >
@@ -136,6 +136,42 @@ fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>,
     towers_info
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+struct TowerGraphNode {
+    tower_color: usize,
+    tower_index: usize,
+}
+
+pub fn is_strongly_connected(chosen_towers: &Vec<Vec<usize>>, 
+        towers_info: &Vec<Vec<Option<LocalTowerInfo>>>) -> bool {
+
+    // An overlay directed graph of the towers in the network
+    // and the connections between them.
+    // A tower T is connected to a tower T' if T' is the closest tower to T of some color.
+    let mut towers_graph: graphmap::DiGraphMap<usize,()> = 
+        graphmap::DiGraphMap::new();
+
+    // Add towers as node to the graph:
+    for tower_color in 0 .. chosen_towers.len() {
+        for tower_index in 0 .. chosen_towers[tower_color].len() {
+            towers_graph.add_node(chosen_towers[tower_color][tower_index]);
+        }
+    }
+
+    // For every tower, add all connections to closest local towers as nodes.
+    let graph_nodes = towers_graph.nodes().collect::<Vec<usize>>();
+    for tower_node in graph_nodes {
+        for tower_color in 0 .. chosen_towers.len() {
+            towers_graph.add_edge(tower_node, 
+                  towers_info[tower_node][tower_color].clone().unwrap().tower_node,());
+        }
+    }
+
+    let sconnected_comps= kosaraju_scc(&towers_graph);
+    sconnected_comps.len() == 1
+}
+
+
 
 #[cfg(test)]
 mod tests {
@@ -151,8 +187,9 @@ mod tests {
         let mut rng: StdRng = rand::SeedableRng::from_seed(seed);
         let net = gen_network(0, 7, 15, 1, 2, &mut rng);
 
-        let chosen_towers = choose_towers(&net, 16, 4, &mut rng);
-        let _ = calc_towers_info(&net, &chosen_towers);
+        let chosen_towers = choose_towers(&net, 4, 16, &mut rng);
+        let towers_info = calc_towers_info(&net, &chosen_towers);
+        assert!(is_strongly_connected(&chosen_towers, &towers_info));
 
     }
 
