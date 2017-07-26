@@ -65,7 +65,8 @@ fn init_towers_info(num_nodes: usize, num_colors: usize) ->
 /// of every color.
 /// This function uses a lot of memory, and can not be run
 /// for networks of size 2^16.
-pub fn calc_towers_info_old<Node: Hash + Eq + Clone>(net: &Network<Node>, 
+#[allow(dead_code)]
+pub fn calc_towers_info_mem_heavy<Node: Hash + Eq + Clone>(net: &Network<Node>, 
     chosen_towers: &Vec<Vec<usize>>) -> Vec<Vec<Option<LocalTowerInfo>>> {
 
     let mut towers_info = init_towers_info(net.igraph.node_count(), 
@@ -138,6 +139,51 @@ pub fn calc_towers_info_old<Node: Hash + Eq + Clone>(net: &Network<Node>,
     towers_info
 }
 
+
+fn iter_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>,
+                 chosen_towers: &Vec<Vec<usize>>,
+                 towers_info: &mut Vec<Vec<Option<LocalTowerInfo>>>) -> bool {
+
+    let mut changed = false;
+
+    for node in net.igraph.nodes() {
+        for nei in net.igraph.neighbors(node) {
+            for tower_color in 0 .. chosen_towers.len() {
+                if towers_info[node][tower_color].is_none() {
+                    continue
+                }
+                // This is the candidate LocalTowerInfo for nei:
+                let mut candidate_info = towers_info[node][tower_color].clone().unwrap();
+                candidate_info.distance += 1;
+                candidate_info.gateway = node;
+                // Current nei's LocalTowerInfo:
+
+                if towers_info[nei][tower_color].is_none() {
+                    changed = true;
+                    towers_info[nei][tower_color] = Some(candidate_info);
+                    continue
+                }
+
+                let nei_info = towers_info[nei][tower_color].clone().unwrap();
+
+                if (candidate_info.distance,
+                    candidate_info.gateway,
+                    candidate_info.tower_node) <
+                   (nei_info.distance,
+                    nei_info.gateway,
+                    nei_info.tower_node) {
+
+                    changed = true;
+                    towers_info[nei][tower_color] = Some(candidate_info);
+
+                }
+            }
+        }
+    }
+    changed
+}
+
+
 /// Converge information about local towers. 
 /// Every node will learn about the closest local towers
 /// of every color.
@@ -147,71 +193,36 @@ pub fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>,
     let mut towers_info = init_towers_info(net.igraph.node_count(), 
                                            chosen_towers.len());
 
-    let mut pending_opers: VecDeque<UpdateOper> = VecDeque::new();
-
     // Add initial update operations from all chosen towers.
     // Later the information about those towers will propagage all over the network.
     for tower_color in 0 .. chosen_towers.len() {
         for tower_index in 0 .. chosen_towers[tower_color].len() {
             let tower_node = chosen_towers[tower_color][tower_index];
-            pending_opers.push_back(UpdateOper {
-                node: tower_node,
-                tower_color,
-                tower_index,
-                local_tower_info: LocalTowerInfo {
-                    gateway: tower_node,
-                    distance: 0,
-                    tower_node,
-                }
+            let tower_info = &mut towers_info[tower_node][tower_color];
+            *tower_info = Some(LocalTowerInfo {
+                gateway: tower_node,
+                distance: 0,
+                tower_node,
             });
         }
     }
 
-    // Start handling pending operations:
-    while let Some(oper) = pending_opers.pop_front() {
-        let ltower_info_opt: &mut Option<LocalTowerInfo> = 
-            &mut towers_info[oper.node][oper.tower_color];
-
-        let should_update = match *ltower_info_opt {
-            None => true, 
-            Some(ref ltower_info) => {
-                // Check if the new offered tower info (oper.local_tower_info) 
-                // is better than the current one (ltower_info):
-                if (ltower_info.distance, 
-                    ltower_info.gateway, 
-                    ltower_info.tower_node) >
-                    (oper.local_tower_info.distance, 
-                     oper.local_tower_info.gateway, 
-                     oper.local_tower_info.tower_node) {
-                    true
-                } else {
-                    false
-                }
-            }
-        };
-
-        if !should_update {
-            continue
-        }
-
-        // Update local tower information:
-        *ltower_info_opt = Some(oper.local_tower_info.clone());
-        // Notify all neighbors about new information:
-        for nei in net.igraph.neighbors(oper.node) {
-            pending_opers.push_back(UpdateOper {
-                node: nei,
-                tower_color: oper.tower_color,
-                tower_index: oper.tower_index,
-                local_tower_info: LocalTowerInfo {
-                    gateway: oper.node,
-                    distance: oper.local_tower_info.distance + 1,
-                    tower_node: oper.local_tower_info.tower_node,
-                }
-            });
-        }
+    while iter_towers_info(net, chosen_towers, &mut towers_info) {
     }
 
     towers_info
+}
+
+/// Make sure that all LocalTowerInfo fields are not None
+pub fn is_towers_info_filled(towers_info: &Vec<Vec<Option<LocalTowerInfo>>>) -> bool {
+    for node in 0 .. towers_info.len() {
+        for tower_color in 0 .. towers_info[node].len() {
+            if towers_info[node][tower_color].is_none() {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -268,6 +279,7 @@ mod tests {
         let chosen_towers = choose_towers(&net, 4, 16, &mut rng);
         let towers_info = calc_towers_info(&net, &chosen_towers);
         assert!(is_strongly_connected(&chosen_towers, &towers_info));
+        assert!(is_towers_info_filled(&towers_info));
 
     }
 
