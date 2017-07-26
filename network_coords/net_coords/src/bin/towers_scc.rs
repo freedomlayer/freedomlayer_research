@@ -71,7 +71,7 @@ fn main() {
                     print!("X");
                 }
 
-                print!("| sconnected = ");
+                print!(" | sconnected = ");
                 if sconnected {
                     print!("V");
                 } else {
