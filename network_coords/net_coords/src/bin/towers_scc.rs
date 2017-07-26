@@ -15,7 +15,6 @@ use net_coords::towers::{choose_towers,
     calc_towers_info, is_strongly_connected};
 
 
-
 #[cfg(not(test))]
 fn main() {
     let net_types = 5;
