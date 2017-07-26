@@ -52,8 +52,9 @@ fn main() {
                 let seed: &[_] = &[experiment_seed,2,g,net_type,net_iter];
                 let mut towers_rng: StdRng = rand::SeedableRng::from_seed(seed);
                 let num_colors = g*8;
-                let num_towers = (2_u64.pow(g as u32) / (num_colors as u64)) as usize;
+                let num_towers = 1 + (2_u64.pow(g as u32) / (num_colors as u64)) as usize;
                 let chosen_towers = choose_towers(&net, num_towers, num_colors, &mut towers_rng);
+                // let chosen_towers = choose_towers(&net, 1, num_colors, &mut towers_rng); // Sanity check
                 let towers_info = calc_towers_info(&net, &chosen_towers);
                 // Make sure that towers_info are valid:
                 assert!(is_towers_info_filled(&towers_info));
