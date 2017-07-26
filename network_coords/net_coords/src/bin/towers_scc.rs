@@ -45,6 +45,8 @@ fn main() {
                 let seed: &[_] = &[experiment_seed,1,g,net_type,net_iter];
                 let mut network_rng: StdRng = rand::SeedableRng::from_seed(seed);
                 let net = gen_network(net_type, g, l, 1, 2, &mut network_rng);
+                // Makes sure that the resulting network is connected:
+                assert!(net.is_connected());
 
                 // Choose towers:
                 let seed: &[_] = &[experiment_seed,2,g,net_type,net_iter];
