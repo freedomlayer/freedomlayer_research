@@ -12,7 +12,9 @@ use rand::{StdRng};
 
 use net_coords::network_gen::{gen_network};
 use net_coords::towers::{choose_towers, 
-    calc_towers_info, is_strongly_connected};
+                         calc_towers_info, 
+                         is_strongly_connected,
+                         is_towers_info_filled};
 
 
 #[cfg(not(test))]
@@ -51,6 +53,8 @@ fn main() {
                 let num_towers = (2_u64.pow(g as u32) / (num_colors as u64)) as usize;
                 let chosen_towers = choose_towers(&net, num_towers, num_colors, &mut towers_rng);
                 let towers_info = calc_towers_info(&net, &chosen_towers);
+                // Make sure that towers_info are valid:
+                assert!(is_towers_info_filled(&towers_info));
 
                 print!("num_colors = {:5} |", num_colors);
                 print!("num_towers = {:5} |", num_towers);
