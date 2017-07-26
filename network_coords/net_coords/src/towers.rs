@@ -240,7 +240,7 @@ pub fn is_strongly_connected(chosen_towers: &Vec<Vec<usize>>,
     let mut towers_graph: graphmap::DiGraphMap<usize,()> = 
         graphmap::DiGraphMap::new();
 
-    // Add towers as node to the graph:
+    // Add towers as nodes to the graph:
     for tower_color in 0 .. chosen_towers.len() {
         for tower_index in 0 .. chosen_towers[tower_color].len() {
             towers_graph.add_node(chosen_towers[tower_color][tower_index]);
