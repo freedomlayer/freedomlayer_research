@@ -63,6 +63,84 @@ fn init_towers_info(num_nodes: usize, num_colors: usize) ->
 /// Converge information about local towers. 
 /// Every node will learn about the closest local towers
 /// of every color.
+/// This function uses a lot of memory, and can not be run
+/// for networks of size 2^16.
+pub fn calc_towers_info_old<Node: Hash + Eq + Clone>(net: &Network<Node>, 
+    chosen_towers: &Vec<Vec<usize>>) -> Vec<Vec<Option<LocalTowerInfo>>> {
+
+    let mut towers_info = init_towers_info(net.igraph.node_count(), 
+                                           chosen_towers.len());
+
+    let mut pending_opers: VecDeque<UpdateOper> = VecDeque::new();
+
+    // Add initial update operations from all chosen towers.
+    // Later the information about those towers will propagage all over the network.
+    for tower_color in 0 .. chosen_towers.len() {
+        for tower_index in 0 .. chosen_towers[tower_color].len() {
+            let tower_node = chosen_towers[tower_color][tower_index];
+            pending_opers.push_back(UpdateOper {
+                node: tower_node,
+                tower_color,
+                tower_index,
+                local_tower_info: LocalTowerInfo {
+                    gateway: tower_node,
+                    distance: 0,
+                    tower_node,
+                }
+            });
+        }
+    }
+
+    // Start handling pending operations:
+    while let Some(oper) = pending_opers.pop_front() {
+        let ltower_info_opt: &mut Option<LocalTowerInfo> = 
+            &mut towers_info[oper.node][oper.tower_color];
+
+        let should_update = match *ltower_info_opt {
+            None => true, 
+            Some(ref ltower_info) => {
+                // Check if the new offered tower info (oper.local_tower_info) 
+                // is better than the current one (ltower_info):
+                if (ltower_info.distance, 
+                    ltower_info.gateway, 
+                    ltower_info.tower_node) >
+                    (oper.local_tower_info.distance, 
+                     oper.local_tower_info.gateway, 
+                     oper.local_tower_info.tower_node) {
+                    true
+                } else {
+                    false
+                }
+            }
+        };
+
+        if !should_update {
+            continue
+        }
+
+        // Update local tower information:
+        *ltower_info_opt = Some(oper.local_tower_info.clone());
+        // Notify all neighbors about new information:
+        for nei in net.igraph.neighbors(oper.node) {
+            pending_opers.push_back(UpdateOper {
+                node: nei,
+                tower_color: oper.tower_color,
+                tower_index: oper.tower_index,
+                local_tower_info: LocalTowerInfo {
+                    gateway: oper.node,
+                    distance: oper.local_tower_info.distance + 1,
+                    tower_node: oper.local_tower_info.tower_node,
+                }
+            });
+        }
+    }
+
+    towers_info
+}
+
+/// Converge information about local towers. 
+/// Every node will learn about the closest local towers
+/// of every color.
 pub fn calc_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>, 
     chosen_towers: &Vec<Vec<usize>>) -> Vec<Vec<Option<LocalTowerInfo>>> {
 
