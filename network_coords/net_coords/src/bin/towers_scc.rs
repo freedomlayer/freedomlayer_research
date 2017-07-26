@@ -51,7 +51,7 @@ fn main() {
                 // Choose towers:
                 let seed: &[_] = &[experiment_seed,2,g,net_type,net_iter];
                 let mut towers_rng: StdRng = rand::SeedableRng::from_seed(seed);
-                let num_colors = g*4;
+                let num_colors = g*2;
                 let total_num_towers = (2_u64.pow(g as u32) as f64).sqrt() as usize;
                 let num_towers = 1 + (total_num_towers / num_colors);
                 let chosen_towers = choose_towers(&net, num_towers, num_colors, &mut towers_rng);
