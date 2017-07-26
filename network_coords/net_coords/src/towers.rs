@@ -3,7 +3,7 @@ extern crate petgraph;
 
 use self::rand::{Rng};
 use self::petgraph::graphmap;
-use self::petgraph::algo::kosaraju_scc;
+use self::petgraph::algo::{kosaraju_scc, connected_components};
 
 use network::{Network};
 use std::hash::Hash;
@@ -231,8 +231,10 @@ struct TowerGraphNode {
     tower_index: usize,
 }
 
-pub fn is_strongly_connected(chosen_towers: &Vec<Vec<usize>>, 
-        towers_info: &Vec<Vec<Option<LocalTowerInfo>>>) -> bool {
+/// Check if overlay directed graph of towers is connected.
+/// Returns (connected, strongly_connected)
+pub fn is_connected(chosen_towers: &Vec<Vec<usize>>, 
+        towers_info: &Vec<Vec<Option<LocalTowerInfo>>>) -> (bool, bool) {
 
     // An overlay directed graph of the towers in the network
     // and the connections between them.
@@ -256,8 +258,8 @@ pub fn is_strongly_connected(chosen_towers: &Vec<Vec<usize>>,
         }
     }
 
-    let sconnected_comps= kosaraju_scc(&towers_graph);
-    sconnected_comps.len() == 1
+    let sconnected_comps = kosaraju_scc(&towers_graph);
+    (connected_components(&towers_graph) == 1, sconnected_comps.len() == 1)
 }
 
 
@@ -278,7 +280,7 @@ mod tests {
 
         let chosen_towers = choose_towers(&net, 4, 16, &mut rng);
         let towers_info = calc_towers_info(&net, &chosen_towers);
-        assert!(is_strongly_connected(&chosen_towers, &towers_info));
+        assert!(is_connected(&chosen_towers, &towers_info) == (true, true));
         assert!(is_towers_info_filled(&towers_info));
 
     }

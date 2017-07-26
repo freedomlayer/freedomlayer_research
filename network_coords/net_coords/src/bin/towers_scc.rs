@@ -13,7 +13,7 @@ use rand::{StdRng};
 use net_coords::network_gen::{gen_network};
 use net_coords::towers::{choose_towers, 
                          calc_towers_info, 
-                         is_strongly_connected,
+                         is_connected,
                          is_towers_info_filled};
 
 
@@ -63,7 +63,16 @@ fn main() {
                 print!("num_colors = {:5} |", num_colors);
                 print!("num_towers = {:5} |", num_towers);
 
-                if is_strongly_connected(&chosen_towers, &towers_info) {
+                let (connected, sconnected) = is_connected(&chosen_towers, &towers_info);
+                print!(" connected = ");
+                if connected {
+                    print!("V");
+                } else {
+                    print!("X");
+                }
+
+                print!("| sconnected = ");
+                if sconnected {
                     print!("V");
                 } else {
                     print!("X");
