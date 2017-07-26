@@ -6,8 +6,8 @@ use std::hash::{Hash};
 
 use self::rand::{Rng};
 use self::rand::distributions::{IndependentSample, Range};
-use self::petgraph::algo::dijkstra;
-use self::petgraph::visit::EdgeRef;
+use self::petgraph::algo::{dijkstra, connected_components};
+use self::petgraph::visit::{EdgeRef};
 
 pub struct Network<Node> {
     pub igraph: petgraph::graphmap::GraphMap<usize,u64,petgraph::Undirected>,
@@ -200,6 +200,11 @@ impl <Node: Hash + Eq + Clone> Network <Node> {
             done: HashSet::new(),
         }
     }
+
+    /// Check if the network is connected (As an undirected graph).
+    pub fn is_connected(&self) -> bool {
+        connected_components(&self.igraph) <= 1
+    }
 }
 /// Create a 2d grid network k X k
 pub fn grid2_net(k: usize) -> Network<usize> {
@@ -337,6 +342,24 @@ mod tests {
         assert!(net.dist(0,4).unwrap() == 6);
         assert!(net.dist(1,4).unwrap() == 5);
         assert!(net.dist(1,3).is_none());
+    }
+
+    #[test]
+    fn test_net_is_connected() {
+        let mut net = Network::<usize>::new();
+
+        // Insert n nodes:
+        for v in 0 .. 5 {
+            net.add_node(v);
+        }
+
+        net.igraph.add_edge(0,1,1);
+        net.igraph.add_edge(1,2,2);
+        net.igraph.add_edge(2,4,3);
+        assert!(!net.is_connected());
+
+        net.igraph.add_edge(2,3,1);
+        assert!(net.is_connected());
     }
 
     #[test]
