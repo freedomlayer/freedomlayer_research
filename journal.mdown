@@ -150,7 +150,7 @@ Things to do:
 - Run the network approximation algorithm with harmonic mean. Make sure that it
   gives good approximations.
 
-- Document the results of connectivity for the towers undirected graph (Weak
+- Document the results of connectivity for the towers' undirected graph (Weak
   connectivity) in freedomlayer.
 
 - Update the passerby.mdown document to explain the current plan. Possibly add
