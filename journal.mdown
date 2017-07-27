@@ -132,4 +132,38 @@ If we can reach all nodes in (1) and (2), it means that the resulting directed
 graph is strongly connected.
 
 
+## 27.07.2017
+
+I ran the code for routing using towers.
+It seems like we don't get very good results for strongly connected components
+in the directed graph (It works well only for the random G(n,p) network). The
+rest of the network types fail at some point. (Using num_colors = 2*log(n)) 
+
+When checking for weak connectivity (Looking at the towers graph as an
+undirected graph), things work better. So far I had weak connectivity for all
+networks until 2^17. I need to wait a bit more to see the results for larger
+networks.
+
+
+Things to do:
+
+- Run the network approximation algorithm with harmonic mean. Make sure that it
+  gives good approximations.
+
+- Document the results of connectivity for the towers undirected graph (Weak
+  connectivity) in freedomlayer.
+
+- Update the passerby.mdown document to explain the current plan. Possibly add
+  pseudo code for handling messages (Dividing to layers: L0, L1, L2).
+
+- Lookup should store both node hashes and node ids. When a node sends a
+  message he should know the node id of the remote node. Knowing the hash is 
+  not enough for encrypting the message. How to avoid the latency?
+  - We add a resolve service (hashNodeId to nodeId) given by towers. Towers can
+    then cache the result of LookupIdResponse, for the following messages. V
+
+- Check how cjdns sends packets in linux. We might be able to do something
+  similar.
+
+- Move the documentation of the passerby project to a public repository. V
 
