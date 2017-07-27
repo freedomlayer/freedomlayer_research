@@ -46,9 +46,22 @@ pub fn calc_mins(elems: &Vec<u64>, num_hashes: usize) -> Vec<u64> {
         .collect::<Vec<u64>>()
 }
 
+/// Calculate harmonic mean of given values
+fn harmonic_mean(vals: &[f64]) -> f64 {
+    let fsum: f64 = vals.iter()
+        .map(|&x| 1.0 / x)
+        .sum();
 
-pub fn approx_size(mins: &Vec<u64>) {
+    (vals.len() as f64) / fsum
+}
 
+pub fn approx_size_harmonic(mins: &Vec<u64>) -> u64 {
+    let trans = mins.iter()
+        .map(|&m| (u64::max_value() / m) - 1)
+        .map(|x| x as f64)
+        .collect::<Vec<f64>>();
+
+    harmonic_mean(&trans) as u64
 }
 
 
@@ -77,4 +90,16 @@ mod tests {
         let mins = calc_mins(&elems, 4);
         assert_eq!(mins.len(), 4);
     }
+
+    #[test]
+    fn test_approx_size_harmonic() {
+        let seed: &[_] = &[1,2,3,4];
+        let mut rng: StdRng = rand::SeedableRng::from_seed(seed);
+        let elems = gen_elems(20, &mut rng);
+        assert_eq!(elems.len(), 20);
+        let mins = calc_mins(&elems, 4);
+        assert_eq!(mins.len(), 4);
+        approx_size_harmonic(&mins);
+    }
+
 }
