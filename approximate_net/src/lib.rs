@@ -64,34 +64,6 @@ pub fn approx_size_harmonic(mins: &Vec<u64>) -> usize {
     harmonic_mean(&trans) as usize
 }
 
-/*
-
-pub fn approx_size_harmonic2(mins: &Vec<u64>) -> u64 {
-    let hmean: f64 = harmonic_mean(&mins.iter()
-                  .map(|&m| m as f64)
-                  .collect::<Vec<f64>>());
-
-    (u64::max_value() / (hmean as u64)) - 1
-}
-
-fn mean(vals: &[f64]) -> f64 {
-    let amount = vals.len();
-
-    vals.iter()
-        .map(|&x| x / (amount as f64))
-        .sum::<f64>()
-}
-
-pub fn approx_size_mean(mins: &Vec<u64>) -> u64 {
-    let trans = mins.iter()
-        .map(|&m| (u64::max_value() / m) - 1)
-        .map(|x| x as f64)
-        .collect::<Vec<f64>>();
-
-    mean(&trans) as u64
-}
-*/
-
 
 #[cfg(test)]
 mod tests {
@@ -128,10 +100,6 @@ mod tests {
         let mins = calc_mins(&elems, 4);
         assert_eq!(mins.len(), 4);
         approx_size_harmonic(&mins);
-        /*
-        approx_size_harmonic2(&mins);
-        approx_size_mean(&mins);
-        */
     }
 
 }

@@ -16,8 +16,6 @@ fn main() {
 
     let mut total_serror = 0;
     for _ in 0 .. num_iters {
-        // let num_elems_range = Range::<usize>::new(1000, 1000000);
-        // let num_elems = num_elems_range.ind_sample(&mut rng);
         let elems = gen_elems(num_elems, &mut rng);
         let mins = calc_mins(&elems, num_mins);
         let approx_size = approx_size_harmonic(&mins);
