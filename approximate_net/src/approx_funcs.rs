@@ -71,7 +71,7 @@ mod tests {
     #[test]
     fn test_approx_size_harmonic() {
         let mins = &[111,222,333,4,555];
-        approx_size_harmonic(mins);
+        approx_size_harmonic_before(mins);
     }
 
 }

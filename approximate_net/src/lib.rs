@@ -94,7 +94,7 @@ pub fn eval_approx_size_funcs<R: Rng>(num_iters: usize,
 mod tests {
     use super::*;
     use self::rand::{StdRng};
-    use self::approx_funcs::approx_size_harmonic;
+    use self::approx_funcs::approx_size_harmonic_before;
  
     #[test]
     fn test_hash_elem() {
@@ -129,7 +129,7 @@ mod tests {
         let err_ratios = eval_approx_size_funcs(num_iters, 
                                                 num_mins, 
                                                 num_elems, 
-                                                &[&approx_size_harmonic], 
+                                                &[&approx_size_harmonic_before], 
                                                 &mut rng);
         assert_eq!(err_ratios.len(),1);
     }
