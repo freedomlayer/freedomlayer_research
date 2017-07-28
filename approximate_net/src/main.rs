@@ -10,7 +10,7 @@ fn main() {
     let mut rng: StdRng = rand::SeedableRng::from_seed(seed);
     let num_mins = 40;
     let num_iters = 100;
-    let num_elems = 10000;
+    let num_elems = 100000;
 
     println!("Calculating variance for approx_size_harmonic...");
 
