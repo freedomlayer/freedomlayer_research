@@ -13,7 +13,7 @@ fn main() {
 
     let num_iters = 100;
     let num_mins = 40;
-    let num_elems = 100000;
+    let num_elems = 1000000;
     println!("Calculating error ratios for approximation functions...");
     println!("num_iters = {}",num_iters);
     println!("num_mins  = {}",num_mins);
