@@ -69,7 +69,7 @@ fn square_dist<T: Copy + ops::Sub<Output=T>
 pub fn eval_approx_size_funcs<R: Rng>(num_iters: usize, 
                            num_mins: usize, 
                            num_elems: usize, 
-                           approx_size_funcs: &[ApproxFunc],
+                           approx_size_funcs: &[&ApproxFunc],
                            rng: &mut R) -> Vec<f64> {
 
     let mut total_serrors = vec![0; approx_size_funcs.len()];

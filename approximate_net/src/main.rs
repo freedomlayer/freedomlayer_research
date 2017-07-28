@@ -22,7 +22,7 @@ fn main() {
 
     let approx_funcs = APPROX_FUNCS_NAMED.iter()
         .map(|&(approx_func, _)| approx_func)
-        .collect::<Vec<ApproxFunc>>();
+        .collect::<Vec<&ApproxFunc>>();
 
     let err_ratios = eval_approx_size_funcs(num_iters, 
                                             num_mins, 

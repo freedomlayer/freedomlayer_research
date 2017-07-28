@@ -53,9 +53,9 @@ pub fn approx_size_mean_after(mins: &[u64]) -> usize {
     mean(&trans) as usize
 }
 
-pub type ApproxFunc = &'static (Fn(&[u64]) -> usize +  std::marker::Sync);
+pub type ApproxFunc = (Fn(&[u64]) -> usize +  std::marker::Sync);
 
-pub static APPROX_FUNCS_NAMED: &[(ApproxFunc, &'static str)] = 
+pub static APPROX_FUNCS_NAMED: &[(&ApproxFunc, &'static str)] = 
     &[
         (&approx_size_harmonic_before, "approx_size_harmonic_before"), 
         (&approx_size_harmonic_after, "approx_size_harmonic_after"),
