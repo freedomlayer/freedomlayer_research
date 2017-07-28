@@ -9,6 +9,8 @@ use self::ring::{digest};
 use bincode::{serialize, Infinite};
 use std::ops;
 
+use approx_funcs::{ApproxFunc};
+
 
 /// Generate random u64 elements:
 fn gen_elems<R: Rng>(num_elems: usize, rng: &mut R) -> Vec<u64> {
@@ -67,7 +69,7 @@ fn square_dist<T: Copy + ops::Sub<Output=T>
 pub fn eval_approx_size_funcs<R: Rng>(num_iters: usize, 
                            num_mins: usize, 
                            num_elems: usize, 
-                           approx_size_funcs: &[&Fn(&[u64]) -> usize],
+                           approx_size_funcs: &[ApproxFunc],
                            rng: &mut R) -> Vec<f64> {
 
     let mut total_serrors = vec![0; approx_size_funcs.len()];
