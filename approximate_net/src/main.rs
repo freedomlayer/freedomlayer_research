@@ -2,7 +2,6 @@ extern crate rand;
 extern crate approximate_net;
 
 use self::rand::{StdRng};
-// use self::rand::distributions::{IndependentSample, Range};
 use approximate_net::{gen_elems, calc_mins, approx_size_harmonic};
 
 fn main() {
