@@ -172,7 +172,7 @@ Things to do:
 
 Things to do:
 
-- Document the idea of network approximation in freedomlayer.
+- Document the idea of network approximation in freedomlayer. V
 
 - Document the results of connectivity for the towers' undirected graph (Weak
   connectivity) in freedomlayer.
@@ -181,3 +181,16 @@ Things to do:
   pseudo code for handling messages (Dividing to layers: L0, L1, L2).
 
 
+## 01.08.2017
+
+Things to do:
+
+- Explain about sqrt(n) towers routing. Include experiment results for towers
+    connectivity.
+    - Separate document from the passerby document?
+
+- Find out how to perform smooth transition that is easy to reason about for
+    the towers and for the network size approximation.
+
+- Update the passerby.mdown document to explain the current plan. Possibly add
+  pseudo code for handling messages (Dividing to layers: L0, L1, L2).
