@@ -140,6 +140,8 @@ pub fn calc_towers_info_mem_heavy<Node: Hash + Eq + Clone>(net: &Network<Node>,
 }
 
 
+/// Perform one iteration of calculating towers info.
+/// Return whether any changed happen during this iteration.
 fn iter_towers_info<Node: Hash + Eq + Clone>(net: &Network<Node>,
                  chosen_towers: &Vec<Vec<usize>>,
                  towers_info: &mut Vec<Vec<Option<LocalTowerInfo>>>) -> bool {
