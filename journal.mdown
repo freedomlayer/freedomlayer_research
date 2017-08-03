@@ -194,3 +194,20 @@ Things to do:
 
 - Update the passerby.mdown document to explain the current plan. Possibly add
   pseudo code for handling messages (Dividing to layers: L0, L1, L2).
+
+
+## 02.08.2017
+
+Some ideas:
+
+- Instead of towers, use indexers: Computers that store the full structure of
+    the network.
+
+- Instead of using colors, every node will remember path to the closest $k$
+    indexers. Is there a difference when using this against using colors?
+
+- Is anonymity possible? How to acheive? Might be acheived if we remove the
+    "from" field. We might be able to send datagrams that could not be traced.
+    This is probably not a priority right now.
+
+
