@@ -149,3 +149,4 @@ g=19; 2d      ; ni=0 |num_colors =    38 |num_towers =    20 | connected = V| sc
 g=19; 2d      ; ni=1 |num_colors =    38 |num_towers =    20 | connected = V| sconnected = V
 g=19; rand+2d ; ni=0 |num_colors =    38 |num_towers =    20 | connected = V| sconnected = V
 g=19; rand+2d ; ni=1 |num_colors =    38 |num_towers =    20 | connected = V| sconnected = V
+g=19; planar  ; ni=0 |num_colors =    38 |num_towers =    20 | connected = V| sconnected = V
