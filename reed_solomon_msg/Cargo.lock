@@ -1,0 +1,14 @@
+[root]
+name = "reed_solomon_msg"
+version = "0.1.0"
+dependencies = [
+ "reed-solomon 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "reed-solomon"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum reed-solomon 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "5ae8cfc9e49a20b77bef3a3467a85ce92524c7ef9f034dbdbeac0f89b71f51e9"
