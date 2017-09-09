@@ -1,0 +1,8 @@
+[package]
+name = "social_net_security"
+version = "0.1.0"
+authors = ["real"]
+
+[dependencies]
+
+rand = "0.3.16"
